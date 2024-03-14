@@ -1,0 +1,26 @@
+{
+    "name": "scraping-amazon-article",
+    "version": "0.0.1",
+    "type": "module",
+    "description": "Scraping Amazon Article",
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "dependencies": {
+        "apify": "^3.1.15",
+        "cheerio": "^1.0.0-rc.12",
+        "crawlee": "^3.7.2"
+    },
+    "devDependencies": {
+        "@apify/tsconfig": "^0.1.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^4.9.5"
+    },
+    "scripts": {
+        "start": "npm run start:dev",
+        "start:prod": "node dist/crawler.js",
+        "start:dev": "ts-node-esm -T src/crawler.ts",
+        "build": "tsc"
+    },
+    "license": "ISC"
+}
