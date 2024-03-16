@@ -9,7 +9,8 @@
     "dependencies": {
         "apify": "^3.1.15",
         "cheerio": "^1.0.0-rc.12",
-        "crawlee": "^3.7.2"
+        "crawlee": "^3.7.2",
+        "playwright": "^1.42.1"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-In this guide, we'll be extracting information from Amazon product pages using the power of [TypeScript](https://www.typescriptlang.org) in combination with the [Cheerio](https://cheerio.js.org) and [Crawlee](https://crawlee.dev) libraries. We'll explore how to retrieve and extract detailed product data such as titles, prices, image URLs, and more from Amazon's vast marketplace. So, buckle up as we delve into the fascinating world of web scraping!
+In this guide, we'll be extracting information from Amazon product pages using the power of [TypeScript](https://www.typescriptlang.org) in combination with the [Cheerio](https://cheerio.js.org) and [Crawlee](https://crawlee.dev) libraries. We'll explore how to retrieve and extract detailed product data such as titles, prices, image URLs, and more from Amazon's vast marketplace. We'll also discuss how to handle potential blocking issues that may arise during the scraping process.
 
 ## Prerequisites
 
@@ -185,9 +185,7 @@ const extractProductAttributes = ($: CheerioAPI): ProductAttribute[] => {
 };
 ```
 
-<!-- [*Show the full `scraper.ts` file and explain that the scraping part is finished now.*] -->
-
-Hoo-ray! We've now effectively crafted our scraping functions. Here's the complete `scraper.ts` file:
+We've now effectively crafted our scraping functions. Here's the complete `scraper.ts` file:
 
 ```typescript
 import { CheerioAPI } from 'cheerio';
@@ -372,7 +370,7 @@ The code now successfully extracts the product details from the given URLs. We'v
 
 ## Preventing blocking
 
-But this isn’t the end. With a giant website like Amazon, one is bound to face some issues with blocking. Let's discuss how to handle them.
+With a giant website like Amazon, one is bound to face some issues with blocking. Let's discuss how to handle them.
 
 Amazon frequently presents annoying CAPTCHAs or warning screens that may detect or block your scraper. We can counter this inconvenience by implementing a mechanism to detect and handle these blocks. As soon as we stumble upon one, we simply retry the request.
 
@@ -410,10 +408,55 @@ const requestHandler = async (context: CheerioCrawlingContext) => {
 
 While Crawlee's browser-like user-agent headers aid in preventing blocking to a certain extent, this isn't fully effective for a site as vast as Amazon.
 
-The use of proxies marks another significant tactic in evading blocking. You’ll be pleased to know that Crawlee excels in this domain, supporting both custom proxies and [Apify proxies](https://apify.com/proxy).
+### Using proxies
 
-There are many more advanced techniques to prevent blocking, such as using [headless browsers](https://crawlee.dev/docs/examples/playwright-crawler), retrieval of session cookies, and more, but we'll save those for another guide.
+The use of proxies marks another significant tactic in evading blocking. You’ll be pleased to know that Crawlee excels in this domain, supporting both [custom proxies](https://crawlee.dev/docs/guides/proxy-management) and [Apify proxies](https://apify.com/proxy).
+
+Here's an example of how to use Apify's [residential proxies](https://docs.apify.com/platform/proxy/residential-proxy), which are highly effective in preventing blocking:
+
+```typescript
+import { ProxyConfiguration } from 'apify';
+
+const proxyConfiguration = new ProxyConfiguration({
+    groups: ['RESIDENTIAL'],
+    countryCode: 'US', // Optionally, you can specify the proxy country code.
+    // This is useful for sites like Amazon, which display different content based on the user's location.
+});
+
+const crawler = new CheerioCrawler({ requestHandler, proxyConfiguration });
+
+...
+```
+
+### Using headless browsers
+
+For more advanced scraping, you can use a headless browser like [Playwright](https://crawlee.dev/docs/examples/playwright-crawler) to scrape Amazon. This method is more effective in preventing blocking and can handle websites with complex JavaScript interactions.
+
+To use Playwright with Crawlee, we can simply replace the `CheerioCrawler` with `PlaywrightCrawler`:
+
+```typescript
+import { PlaywrightCrawler } from 'crawlee';
+
+const crawler = new PlaywrightCrawler({ requestHandler, proxyConfiguration });
+
+...
+```
+
+And update our cheerio dependent code to work within Playwright:
+
+```typescript
+import { PlaywrightCrawlingContext } from 'crawlee';
+
+const requestHandler = async (context: PlaywrightCrawlingContext) => {
+    const { request, parseWithCheerio } = context;
+    const { url } = request;
+
+    const $ = await parseWithCheerio(); // Get the Cheerio object for the page.
+
+    ...
+};
+```
 
 ## Conclusion
 
-And there you have it! You've now journeyed through the basic and advanced terrains of web scraping Amazon product pages using the powers of TypeScript, Cheerio, and Crawlee. It can seem a lot to digest but don't worry! With more practice, each step will become more familiar and intuitive - until you become a web-scraping ninja. So go ahead and start experimenting. For more extensive web scraping abilities, check out pre-built scrapers from Apify, like the [Amazon Web Scraper](https://apify.com/junglee/amazon-crawler)! Happy scraping!
+You've now journeyed through the basic and advanced terrains of web scraping Amazon product pages using the powers of TypeScript, Cheerio, and Crawlee. It can seem like a lot to digest but don't worry! With more practice, each step will become more familiar and intuitive - until you become a web-scraping ninja. So go ahead and start experimenting. For more extensive web scraping abilities, check out pre-built scrapers from Apify, like the [Amazon Web Scraper](https://apify.com/junglee/amazon-crawler)! Happy scraping!
